@@ -28,6 +28,7 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
         configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPhc");
 
         char[]? charBuffer = null;
+
         try
         {
             bool parsed = BasicAuthParser.TryReadBasicCredentials(httpContext, out ReadOnlySpan<char> username, out ReadOnlySpan<char> password,
@@ -65,6 +66,7 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
         configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPhc");
 
         char[]? charBuffer = null;
+
         try
         {
             bool parsed = BasicAuthParser.TryReadBasicCredentials(httpContext, out ReadOnlySpan<char> username, out ReadOnlySpan<char> password,
