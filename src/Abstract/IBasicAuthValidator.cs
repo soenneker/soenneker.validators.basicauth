@@ -11,7 +11,7 @@ public interface IBasicAuthValidator : IValidator
     /// <summary>
     /// Strict validator: throws UnauthorizedAccessException on any failure.
     /// </summary>
-    bool Validate(HttpContext httpContext, string? username = null, string? passwordPch = null);
+    bool Validate(HttpContext httpContext, string? configuredUsername = null, string? configuredPasswordPhc = null);
 
-    bool ValidateSafe(HttpContext httpContext, string? username = null, string? passwordPch = null);
+    bool ValidateSafe(HttpContext httpContext, string? configuredUsername = null, string? configuredPasswordPhc = null);
 }
