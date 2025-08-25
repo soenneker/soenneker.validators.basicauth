@@ -27,32 +27,36 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
         configuredUsername ??= _configuration.GetValueStrict<string>("BasicAuth:Username");
         configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPch");
 
-        bool parsed = BasicAuthParser.TryReadBasicCredentials(httpContext, out ReadOnlySpan<char> username, out ReadOnlySpan<char> password,
-            out char[]? charBuffer);
-
-        if (!parsed)
+        char[]? charBuffer = null;
+        try
         {
-            _logger.LogWarning("Could not parse basic credentials");
-            BasicAuthParser.Clear(charBuffer);
-            throw new UnauthorizedAccessException("Invalid credentials");
-        }
+            bool parsed = BasicAuthParser.TryReadBasicCredentials(httpContext, out ReadOnlySpan<char> username, out ReadOnlySpan<char> password,
+                out charBuffer);
 
-        if (!SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername))
+            if (!parsed)
+            {
+                _logger.LogWarning("Could not parse basic credentials");
+                throw new UnauthorizedAccessException("Invalid credentials");
+            }
+
+            if (!SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername))
+            {
+                _logger.LogWarning("Invalid Basic Auth username provided");
+                throw new UnauthorizedAccessException("Invalid credentials");
+            }
+
+            if (!Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc))
+            {
+                _logger.LogWarning("Invalid Basic Auth password provided");
+                throw new UnauthorizedAccessException("Invalid credentials");
+            }
+
+            return true;
+        }
+        finally
         {
-            _logger.LogWarning("Invalid Basic Auth username provided");
             BasicAuthParser.Clear(charBuffer);
-            throw new UnauthorizedAccessException("Invalid credentials");
         }
-
-        if (!Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc))
-        {
-            _logger.LogWarning("Invalid Basic Auth password provided");
-            BasicAuthParser.Clear(charBuffer);
-            throw new UnauthorizedAccessException("Invalid credentials");
-        }
-
-        BasicAuthParser.Clear(charBuffer);
-        return true;
     }
 
     public bool ValidateSafe(HttpContext httpContext, string? configuredUsername = null, string? configuredPasswordPhc = null)
@@ -60,31 +64,35 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
         configuredUsername ??= _configuration.GetValueStrict<string>("BasicAuth:Username");
         configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPch");
 
-        bool parsed = BasicAuthParser.TryReadBasicCredentials(httpContext, out ReadOnlySpan<char> username, out ReadOnlySpan<char> password,
-            out char[]? charBuffer);
+        char[]? charBuffer = null;
+        try
+        {
+            bool parsed = BasicAuthParser.TryReadBasicCredentials(httpContext, out ReadOnlySpan<char> username, out ReadOnlySpan<char> password,
+                out charBuffer);
 
-        if (!parsed)
+            if (!parsed)
+            {
+                _logger.LogWarning("Could not parse basic credentials");
+                return false;
+            }
+
+            if (!SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername))
+            {
+                _logger.LogWarning("Invalid Basic Auth username provided");
+                return false;
+            }
+
+            if (!Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc))
+            {
+                _logger.LogWarning("Invalid Basic Auth password provided");
+                return false;
+            }
+
+            return true;
+        }
+        finally
         {
             BasicAuthParser.Clear(charBuffer);
-            _logger.LogWarning("Could not parse basic credentials");
-            return false;
         }
-
-        if (!SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername))
-        {
-            BasicAuthParser.Clear(charBuffer);
-            _logger.LogWarning("Invalid Basic Auth username provided");
-            return false;
-        }
-
-        if (!Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc))
-        {
-            BasicAuthParser.Clear(charBuffer);
-            _logger.LogWarning("Invalid Basic Auth password provided");
-            return false;
-        }
-
-        BasicAuthParser.Clear(charBuffer);
-        return true;
     }
 }
