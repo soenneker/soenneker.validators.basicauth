@@ -34,7 +34,7 @@ public sealed class BasicAuthValidatorTests : FixturedUnitTest
         var dict = new Dictionary<string, string?>
         {
             ["BasicAuth:Username"] = username,
-            ["BasicAuth:PasswordPch"] = phc
+            ["BasicAuth:PasswordPhc"] = phc
         };
 
         return new ConfigurationBuilder().AddInMemoryCollection(dict!).Build();
