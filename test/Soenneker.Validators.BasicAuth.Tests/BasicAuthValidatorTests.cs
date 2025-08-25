@@ -178,7 +178,7 @@ public sealed class BasicAuthValidatorTests : FixturedUnitTest
         DefaultHttpContext ctx = BuildContext(overrideUser, overridePass);
         BasicAuthValidator sut = CreateSut(cfg);
 
-        sut.Validate(ctx, username: overrideUser, passwordPch: overridePhc).Should().BeTrue();
+        sut.Validate(ctx, configuredUsername: overrideUser, configuredPasswordPhc: overridePhc).Should().BeTrue();
     }
 
     [Fact]
@@ -193,6 +193,6 @@ public sealed class BasicAuthValidatorTests : FixturedUnitTest
         DefaultHttpContext ctx = BuildContext(overrideUser, "wrongPass");
         BasicAuthValidator sut = CreateSut(cfg);
 
-        sut.ValidateSafe(ctx, username: overrideUser, passwordPch: overridePhc).Should().BeFalse();
+        sut.ValidateSafe(ctx, configuredUsername: overrideUser, configuredPasswordPhc: overridePhc).Should().BeFalse();
     }
 }
