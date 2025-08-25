@@ -25,7 +25,7 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
     public bool Validate(HttpContext httpContext, string? configuredUsername = null, string? configuredPasswordPhc = null)
     {
         configuredUsername ??= _configuration.GetValueStrict<string>("BasicAuth:Username");
-        configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPch");
+        configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPhc");
 
         char[]? charBuffer = null;
         try
@@ -62,7 +62,7 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
     public bool ValidateSafe(HttpContext httpContext, string? configuredUsername = null, string? configuredPasswordPhc = null)
     {
         configuredUsername ??= _configuration.GetValueStrict<string>("BasicAuth:Username");
-        configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPch");
+        configuredPasswordPhc ??= _configuration.GetValueStrict<string>("BasicAuth:PasswordPhc");
 
         char[]? charBuffer = null;
         try
