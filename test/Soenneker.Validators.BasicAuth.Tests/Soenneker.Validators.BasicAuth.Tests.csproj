@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Soenneker.Validators.BasicAuth.csproj" />
+        <ProjectReference Include="..\..\src\Soenneker.Validators.BasicAuth\Soenneker.Validators.BasicAuth.csproj" />
     </ItemGroup>
 
     <ItemGroup>
