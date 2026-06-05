@@ -13,5 +13,12 @@ public interface IBasicAuthValidator : IValidator
     /// </summary>
     bool Validate(HttpContext httpContext, string? configuredUsername = null, string? configuredPasswordPhc = null);
 
+    /// <summary>
+    /// Executes the validate safe operation.
+    /// </summary>
+    /// <param name="httpContext">The http context.</param>
+    /// <param name="configuredUsername">The configured username.</param>
+    /// <param name="configuredPasswordPhc">The configured password phc.</param>
+    /// <returns>A value indicating whether the operation succeeded.</returns>
     bool ValidateSafe(HttpContext httpContext, string? configuredUsername = null, string? configuredPasswordPhc = null);
 }
