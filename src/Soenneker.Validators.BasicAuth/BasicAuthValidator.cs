@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Http;
 
 namespace Soenneker.Validators.BasicAuth;
 
-/// <inheritdoc cref="IBasicAuthValidator"/>
 public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidator
 {
     private readonly IConfiguration _configuration;

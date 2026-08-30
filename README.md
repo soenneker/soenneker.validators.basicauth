@@ -5,7 +5,7 @@
 
 # Soenneker.Validators.BasicAuth
 
-A lightweight validation module for validating HTTP Basic Authentication credentials.
+Validates HTTP Basic Authentication credentials against a fixed-cost username comparison and a PBKDF2 PHC password hash.
 
 ## Install
 
@@ -13,28 +13,73 @@ A lightweight validation module for validating HTTP Basic Authentication credent
 dotnet add package Soenneker.Validators.BasicAuth
 ```
 
-## Quick start
+## Registration
 
 ```csharp
 using Soenneker.Validators.BasicAuth.Registrars;
 using Microsoft.Extensions.DependencyInjection;
 
-var services = new ServiceCollection();
-var result = services.AddBasicAuthValidatorAsSingleton();
+services.AddBasicAuthValidatorAsSingleton();
 ```
 
-Adds `IBasicAuthValidator` as a singleton service.
+The validator is stateless, so singleton registration is appropriate for most applications. `AddBasicAuthValidatorAsScoped()` is also available.
 
-## What you get
+## Configuration
 
-- `IBasicAuthValidator` — A lightweight validation module for validating HTTP Basic Authentication credentials.
-- `BasicAuthValidatorRegistrar` — A lightweight validation module for validating HTTP Basic Authentication credentials.
+```json
+{
+  "BasicAuth": {
+    "Username": "integration-client",
+    "PasswordPhc": "<PBKDF2 PHC hash>"
+  }
+}
+```
 
-## API at a glance
+Generate and store the PHC hash rather than a plaintext password:
 
-| API | What it does | Result / important behavior |
-| --- | --- | --- |
-| `IBasicAuthValidator.Validate(httpContext, configuredUsername, configuredPasswordPhc)` | Strict validator: throws UnauthorizedAccessException on any failure. | true if strict validator: throws UnauthorizedAccessException on any failure; otherwise, false. |
-| `IBasicAuthValidator.ValidateSafe(httpContext, configuredUsername, configuredPasswordPhc)` | Validates Basic credentials and returns false instead of throwing when credentials or configuration are invalid. | true if the supplied credentials match the configured credentials; otherwise, false. |
-| `BasicAuthValidatorRegistrar.AddBasicAuthValidatorAsSingleton(services)` | Adds `IBasicAuthValidator` as a singleton service. | The same service collection, so additional registrations can be chained. |
-| `BasicAuthValidatorRegistrar.AddBasicAuthValidatorAsScoped(services)` | Adds `IBasicAuthValidator` as a scoped service. | The same service collection, so additional registrations can be chained. |
+```csharp
+using Soenneker.Hashing.Pbkdf2;
+
+string passwordPhc = Pbkdf2HashingUtil.Hash("replace-with-secret-input");
+```
+
+Keep the resulting configuration value in a secret store. The validator reads `BasicAuth:Username` and `BasicAuth:PasswordPhc` when the corresponding method argument is null.
+
+## Validate a request
+
+```csharp
+using Soenneker.Validators.BasicAuth.Abstract;
+
+if (!validator.ValidateSafe(httpContext))
+{
+    httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+    return;
+}
+```
+
+`ValidateSafe` returns `false` when the request lacks parseable Basic credentials or the username/password does not match. Required-configuration failures and invalid PHC data still throw; “safe” applies to request authentication failures, not application misconfiguration.
+
+Use `Validate` when invalid request credentials should throw `UnauthorizedAccessException`:
+
+```csharp
+validator.Validate(httpContext);
+```
+
+Both methods return `true` on success and use the same generic `"Invalid credentials"` exception message for strict request failures.
+
+## Per-call overrides
+
+```csharp
+bool valid = validator.ValidateSafe(
+    httpContext,
+    configuredUsername: expectedUsername,
+    configuredPasswordPhc: expectedPasswordPhc);
+```
+
+Overrides take precedence independently. A null argument falls back to configuration; it does not disable that credential check.
+
+## Security boundaries
+
+Basic Authentication transmits a reusable username and password on every request. Require TLS, apply rate limiting where credentials can be guessed, and never log the authorization header or plaintext password. This validator clears the parser's temporary credential buffer after each attempt, compares usernames with fixed-cost UTF-8 comparison, and verifies passwords against the configured PBKDF2 PHC hash.
+
+The validator authenticates one configured credential pair. It does not issue a challenge header, create a `ClaimsPrincipal`, authorize roles, rotate secrets, or replace ASP.NET Core authentication middleware when a full authentication scheme is needed.
