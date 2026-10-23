@@ -40,15 +40,13 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
                 throw new UnauthorizedAccessException("Invalid credentials");
             }
 
-            if (!SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername))
-            {
-                _logger.LogWarning("Invalid Basic Auth username provided");
-                throw new UnauthorizedAccessException("Invalid credentials");
-            }
+            // Always verify the password so username mismatches do not skip the expensive hash.
+            bool usernameValid = SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername);
+            bool passwordValid = Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc);
 
-            if (!Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc))
+            if (!usernameValid || !passwordValid)
             {
-                _logger.LogWarning("Invalid Basic Auth password provided");
+                _logger.LogWarning("Invalid Basic Auth credentials provided");
                 throw new UnauthorizedAccessException("Invalid credentials");
             }
 
@@ -78,15 +76,13 @@ public sealed class BasicAuthValidator : Validator.Validator, IBasicAuthValidato
                 return false;
             }
 
-            if (!SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername))
-            {
-                _logger.LogWarning("Invalid Basic Auth username provided");
-                return false;
-            }
+            // Always verify the password so username mismatches do not skip the expensive hash.
+            bool usernameValid = SecurityUtil.FixedCostEqualsUtf8(username, configuredUsername);
+            bool passwordValid = Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc);
 
-            if (!Pbkdf2HashingUtil.Verify(password, configuredPasswordPhc))
+            if (!usernameValid || !passwordValid)
             {
-                _logger.LogWarning("Invalid Basic Auth password provided");
+                _logger.LogWarning("Invalid Basic Auth credentials provided");
                 return false;
             }
 
