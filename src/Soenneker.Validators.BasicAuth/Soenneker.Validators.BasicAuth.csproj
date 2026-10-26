@@ -47,9 +47,9 @@
 
     <ItemGroup>
         <PackageReference Include="Soenneker.Extensions.Configuration" Version="11.0.914" />
-        <PackageReference Include="Soenneker.Hashing.Pbkdf2" Version="11.0.62" />
-        <PackageReference Include="Soenneker.Security.Parsers.BasicAuth" Version="11.0.38" />
-        <PackageReference Include="Soenneker.Security.Util" Version="11.0.58" />
+        <PackageReference Include="Soenneker.Hashing.Pbkdf2" Version="11.0.63" />
+        <PackageReference Include="Soenneker.Security.Parsers.BasicAuth" Version="11.0.39" />
+        <PackageReference Include="Soenneker.Security.Util" Version="11.0.60" />
         <PackageReference Include="Soenneker.Validators.Validator" Version="11.0.754" />
     </ItemGroup>
 </Project>
