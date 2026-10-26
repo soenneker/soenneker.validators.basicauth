@@ -45,7 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Soenneker.Extensions.Configuration" Version="11.0.913" />
+        <PackageReference Include="Soenneker.Extensions.Configuration" Version="11.0.914" />
         <PackageReference Include="Soenneker.Hashing.Pbkdf2" Version="4.0.60" />
         <PackageReference Include="Soenneker.Security.Parsers.BasicAuth" Version="4.0.37" />
         <PackageReference Include="Soenneker.Security.Util" Version="4.0.57" />
